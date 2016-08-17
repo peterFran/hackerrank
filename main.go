@@ -12,6 +12,11 @@ type Point struct {
 	Y int
 }
 
+type Route struct {
+	points []Point
+	score  int
+}
+
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -21,9 +26,9 @@ func check(e error) {
 func main() {
 	var points []Point
 
-	// f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hackerrank/test.txt")
+	f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hacker/test.txt")
 
-	f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
+	// f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
 	check(err)
 	reader := bufio.NewReader(f)
 	meta, _, _ := reader.ReadLine()
@@ -48,5 +53,13 @@ func main() {
 		}
 		i++
 	}
+
 	fmt.Println(points)
+}
+
+func calculateScore(route *Route) {
+	for i := 0; i < len(route.points)-1; i++ {
+		diffx := route.points[i].X - route.points[i+1].X
+		diffy := route.points[i].Y - route.points[i+1].Y
+	}
 }
