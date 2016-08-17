@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-type DirtyPoint struct{
+type Point struct {
 	X int
 	Y int
 }
@@ -19,27 +19,34 @@ func check(e error) {
 }
 
 func main() {
+	var points []Point
 
-	f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hacker/test.txt")
+	// f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hackerrank/test.txt")
+
+	f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
 	check(err)
 	reader := bufio.NewReader(f)
 	meta, _, _ := reader.ReadLine()
 	x, _ := strconv.Atoi(string(meta[0]))
 	y, _ := strconv.Atoi(string(meta[2]))
-	// start = Coordinates(x, y)
+	start := Point{x, y}
+	points = append(points, start)
 
-	fmt.Println(x, y)
-	for line,hasMore,_ := reader.ReadLine() ; hasMore == true ; {
-		for i:=0 ; i < len(line) ; i++{
-			
+	i := 0
+	for line, _, err := reader.ReadLine(); ; line, _, err = reader.ReadLine() {
+		if err != nil {
+			break
 		}
+		fmt.Println(string(line))
+		for j := 0; j < len(line); j++ {
+
+			if string(line[j]) == "d" {
+				dp := Point{j, i}
+				points = append(points, dp)
+			}
+
+		}
+		i++
 	}
-	N := len(line)
-	for i := 0 ; i < 
-	
-	fmt.Println(string(N))
+	fmt.Println(points)
 }
-
-// func createGrid(dimensions int) {
-
-// }
