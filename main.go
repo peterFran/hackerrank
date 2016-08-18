@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/fighterlyt/permutation"
+	"math"
 	"os"
 	"strconv"
 )
@@ -26,9 +28,9 @@ func check(e error) {
 func main() {
 	var points []Point
 
-	f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hacker/test.txt")
+	// f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hacker/test.txt")
 
-	// f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
+	f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
 	check(err)
 	reader := bufio.NewReader(f)
 	meta, _, _ := reader.ReadLine()
@@ -53,13 +55,22 @@ func main() {
 		}
 		i++
 	}
-
+	perms := range int[]{len(points)-1}
 	fmt.Println(points)
+	route := Route{points, 0}
+	calculateScore(&route)
+	fmt.Println(route.score)
 }
 
 func calculateScore(route *Route) {
 	for i := 0; i < len(route.points)-1; i++ {
 		diffx := route.points[i].X - route.points[i+1].X
 		diffy := route.points[i].Y - route.points[i+1].Y
+
+		diffx = int(math.Abs(float64(diffx)))
+		diffy = int(math.Abs(float64(diffy)))
+		fmt.Println(diffx, diffy)
+		route.score += diffx
+		route.score += diffy
 	}
 }
