@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/fighterlyt/permutation"
 	"math"
 	"os"
 	"strconv"
@@ -15,8 +14,11 @@ type Point struct {
 }
 
 type Route struct {
-	points []Point
-	score  int
+	bot      Point
+	points   []Point
+	order    []int
+	score    int
+	commands []string
 }
 
 func check(e error) {
@@ -28,49 +30,138 @@ func check(e error) {
 func main() {
 	var points []Point
 
-	// f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hacker/test.txt")
+	// f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hacker/test3.txt")
 
-	f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
-	check(err)
-	reader := bufio.NewReader(f)
+	// f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
+	// check(err)
+	// reader := bufio.NewReader(f)
+	reader := bufio.NewReader(os.Stdin)
 	meta, _, _ := reader.ReadLine()
 	x, _ := strconv.Atoi(string(meta[0]))
 	y, _ := strconv.Atoi(string(meta[2]))
 	start := Point{x, y}
-	points = append(points, start)
-
 	i := 0
 	for line, _, err := reader.ReadLine(); ; line, _, err = reader.ReadLine() {
 		if err != nil {
 			break
 		}
-		fmt.Println(string(line))
+		// fmt.Println(string(line))
 		for j := 0; j < len(line); j++ {
 
 			if string(line[j]) == "d" {
 				dp := Point{j, i}
 				points = append(points, dp)
+			} else if string(line[j]) == "d" {
+				start = Point{j, i}
 			}
 
 		}
 		i++
 	}
-	perms := range int[]{len(points)-1}
-	fmt.Println(points)
-	route := Route{points, 0}
-	calculateScore(&route)
-	fmt.Println(route.score)
+	var order []int
+	for k := 0; k < len(points); k++ {
+		order = append(order, k)
+	}
+	// fmt.Println(order)
+	winningRoute := Route{start, points, order, 0, []string{}}
+	calculateScore(&winningRoute)
+
+	var col [][]int
+	permute(order, 0, len(order)-1, &col)
+
+	for i := 0; i < len(col); i++ {
+		route := Route{start, points, col[i], 0, []string{}}
+		calculateScore(&route)
+		if route.score < winningRoute.score {
+			winningRoute = route
+			// fmt.Println(winningRoute.score)
+		}
+	}
+	// fmt.Println(winningRoute)
+	generateRoute(&winningRoute)
+
+	fmt.Println(winningRoute.commands[0])
+	// reader.Read()
+	reader.Discard(100)
+	fmt.Println(winningRoute.commands[1])
 }
 
 func calculateScore(route *Route) {
-	for i := 0; i < len(route.points)-1; i++ {
-		diffx := route.points[i].X - route.points[i+1].X
-		diffy := route.points[i].Y - route.points[i+1].Y
 
-		diffx = int(math.Abs(float64(diffx)))
-		diffy = int(math.Abs(float64(diffy)))
-		fmt.Println(diffx, diffy)
-		route.score += diffx
-		route.score += diffy
+	for i := -1; i < len(route.points)-1; i++ {
+		if i == -1 {
+			route.score += calculateDiff(route.bot, route.points[route.order[i+1]])
+		} else {
+			route.score += calculateDiff(route.points[route.order[i]], route.points[route.order[i+1]])
+		}
+	}
+}
+
+func generateRoute(route *Route) {
+	for i := -1; i < len(route.order)-1; i++ {
+		pointB := route.points[route.order[i+1]]
+		// fmt.Println(pointB)
+		for diff := calculateDiff(route.bot, pointB); diff > 0; diff = calculateDiff(route.bot, pointB) {
+			move := nextMove(route.bot, pointB)
+			route.commands = append(route.commands, move)
+			movePoint(&route.bot, move)
+		}
+		route.commands = append(route.commands, "CLEAN")
+	}
+}
+
+func calculateDiff(pointA Point, pointB Point) int {
+	diffx := pointA.X - pointB.X
+	diffy := pointA.Y - pointB.Y
+
+	diffx = int(math.Abs(float64(diffx)))
+	diffy = int(math.Abs(float64(diffy)))
+	return diffx + diffy
+}
+
+func nextMove(pointA Point, pointB Point) string {
+	diffx := pointA.X - pointB.X
+	diffy := pointA.Y - pointB.Y
+	if diffx > 0 {
+		return "LEFT"
+	} else if diffx < 0 {
+		return "RIGHT"
+	} else if diffy > 0 {
+		return "UP"
+	} else if diffy < 0 {
+		return "DOWN"
+	} else {
+		return "CLEAN"
+	}
+}
+
+func movePoint(point *Point, move string) {
+	if move == "LEFT" {
+		point.X -= 1
+	} else if move == "RIGHT" {
+		point.X += 1
+	} else if move == "DOWN" {
+		point.Y += 1
+	} else {
+		point.Y -= 1
+	}
+}
+
+/* Function to print permutations of string
+   This function takes three parameters:
+   1. String
+   2. Starting index of the string
+   3. Ending index of the string. */
+func permute(arr []int, l, r int, col *[][]int) {
+
+	if l == r {
+		*col = append(*col, arr)
+
+	} else {
+		for i := l; i <= r; i++ {
+			arr[l], arr[i] = arr[i], arr[l]
+			permute(arr, l+1, r, col)
+			arr[l], arr[i] = arr[i], arr[l] // backtrack
+		}
 	}
 }
