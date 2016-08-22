@@ -21,6 +21,12 @@ type Route struct {
 	commands []string
 }
 
+type Solution struct {
+	winningRoute Route
+	startingOrder []int
+}
+
+func (s Solution) 
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -28,33 +34,41 @@ func check(e error) {
 }
 
 func main() {
-	var points []Point
-
 	// f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hacker/test3.txt")
 
-	// f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
-	// check(err)
-	// reader := bufio.NewReader(f)
-	reader := bufio.NewReader(os.Stdin)
-	meta, _, _ := reader.ReadLine()
-	x, _ := strconv.Atoi(string(meta[0]))
-	y, _ := strconv.Atoi(string(meta[2]))
-	start := Point{x, y}
-	i := 0
-	for line, _, err := reader.ReadLine(); ; line, _, err = reader.ReadLine() {
-		if err != nil {
-			break
-		}
-		// fmt.Println(string(line))
-		for j := 0; j < len(line); j++ {
+	f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
+	check(err)
+	reader := bufio.NewReader(f)
+	// reader := bufio.NewReader(os.Stdin)
 
-			if string(line[j]) == "d" {
+	board := []string{}
+	for finished := false; finished == false; {
+		meta, _, _ := reader.ReadLine()
+		x, _ := strconv.Atoi(string(meta[0]))
+		y, _ := strconv.Atoi(string(meta[2]))
+
+		board = append(board, string(line))
+		for i := 1; i < 5; i++ {
+			line, _, err := reader.ReadLine()
+			if err != nil {
+				break
+			}
+			board = append(board, string(line))
+		}
+		finished = next_move(x, y, board)
+	}
+}
+
+func next_move(posc, posr int, board []string) bool {
+	start := Point{posc, posr}
+	points := []Point{}
+	for i := 0; i < len(board); i++ {
+		for j := 0; j < len(board[i]); j++ {
+
+			if string(board[i][j]) == "d" {
 				dp := Point{j, i}
 				points = append(points, dp)
-			} else if string(line[j]) == "d" {
-				start = Point{j, i}
 			}
-
 		}
 		i++
 	}
@@ -68,10 +82,11 @@ func main() {
 
 	var col [][]int
 	permute(order, 0, len(order)-1, &col)
-
+	// fmt.Println(col)
 	for i := 0; i < len(col); i++ {
 		route := Route{start, points, col[i], 0, []string{}}
 		calculateScore(&route)
+		// fmt.Println(route)
 		if route.score < winningRoute.score {
 			winningRoute = route
 			// fmt.Println(winningRoute.score)
@@ -79,11 +94,12 @@ func main() {
 	}
 	// fmt.Println(winningRoute)
 	generateRoute(&winningRoute)
-
 	fmt.Println(winningRoute.commands[0])
-	// reader.Read()
-	reader.Discard(100)
-	fmt.Println(winningRoute.commands[1])
+	if len(winningRoute.commands) == 1 {
+		return true
+	} else {
+		return false
+	}
 }
 
 func calculateScore(route *Route) {
@@ -155,7 +171,11 @@ func movePoint(point *Point, move string) {
 func permute(arr []int, l, r int, col *[][]int) {
 
 	if l == r {
-		*col = append(*col, arr)
+		temparr := make([]int, len(arr))
+
+		copy(temparr, arr)
+		*col = append(*col, temparr)
+		// fmt.Println(arr)
 
 	} else {
 		for i := l; i <= r; i++ {
