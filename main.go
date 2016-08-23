@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"time"
 )
 
 type Point struct {
@@ -21,12 +22,6 @@ type Route struct {
 	commands []string
 }
 
-type Solution struct {
-	winningRoute Route
-	startingOrder []int
-}
-
-func (s Solution) 
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -36,30 +31,41 @@ func check(e error) {
 func main() {
 	// f, err := os.Open("/Users/peter/Projects/GO/src/github.com/peterFran/hacker/test3.txt")
 
-	f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
-	check(err)
-	reader := bufio.NewReader(f)
-	// reader := bufio.NewReader(os.Stdin)
-
+	// f, err := os.Open("/Users/petermeckiffe/Projects/go/src/github.com/peterfran/hackerrank/test.txt")
+	// check(err)
+	// reader := bufio.NewReader(f)
+	reader := bufio.NewReader(os.Stdin)
+	line, _, _ := reader.ReadLine()
 	board := []string{}
-	for finished := false; finished == false; {
-		meta, _, _ := reader.ReadLine()
-		x, _ := strconv.Atoi(string(meta[0]))
-		y, _ := strconv.Atoi(string(meta[2]))
+	// for finished := false; finished == false; {
+	meta, _, _ := reader.ReadLine()
+	x, _ := strconv.Atoi(string(meta[0]))
+	y, _ := strconv.Atoi(string(meta[2]))
 
-		board = append(board, string(line))
-		for i := 1; i < 5; i++ {
-			line, _, err := reader.ReadLine()
-			if err != nil {
-				break
-			}
-			board = append(board, string(line))
+	board = append(board, string(line))
+	for i := 1; i < 5; i++ {
+		line, _, err := reader.ReadLine()
+		if err != nil {
+			break
 		}
-		finished = next_move(x, y, board)
+		board = append(board, string(line))
 	}
+	winningRoute := calculateMoves(x, y, board)
+
+	fmt.Println(winningRoute.commands[0])
+	meta, _, err := reader.ReadLine()
+	if err != nil {
+		time.Sleep(1000)
+	}
+	meta, _, _ = reader.ReadLine()
+	x, _ = strconv.Atoi(string(meta[0]))
+	y, _ = strconv.Atoi(string(meta[2]))
+	fmt.Println(winningRoute.commands[1])
+
+	// }
 }
 
-func next_move(posc, posr int, board []string) bool {
+func calculateMoves(posc, posr int, board []string) Route {
 	start := Point{posc, posr}
 	points := []Point{}
 	for i := 0; i < len(board); i++ {
@@ -94,12 +100,7 @@ func next_move(posc, posr int, board []string) bool {
 	}
 	// fmt.Println(winningRoute)
 	generateRoute(&winningRoute)
-	fmt.Println(winningRoute.commands[0])
-	if len(winningRoute.commands) == 1 {
-		return true
-	} else {
-		return false
-	}
+	return winningRoute
 }
 
 func calculateScore(route *Route) {
